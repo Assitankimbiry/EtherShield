@@ -1,0 +1,7 @@
+# Fichiers temporaires Foundry
+cache/
+out/
+broadcast/
+
+# Fichiers temporaires
+.DS_Store
