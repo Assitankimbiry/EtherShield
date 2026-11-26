@@ -44,10 +44,22 @@ contract VaultTest is Test {
         vault.deposit{value: 5 ether}();
     }
 
-    function testReentrancyAttack() public {
-        attacker.attack{value: 1 ether}();
+    function testReentrancyAttackBlocked() public {
+    // L'attaquant tente de voler les ETH
+    (bool success, ) = address(attacker).call{value: 1 ether}(
+        abi.encodeCall(Attacker.attack, ())
+    );
 
-        assertEq(address(vault).balance, 0);
-        assertEq(address(attacker).balance, 6 ether);
+    // L'attaque doit echouer
+    assertFalse(success, "L'attaque aurait du echouer");
+
+    // Les 5 ETH d'Alice doivent rester dans le Vault
+    assertEq(address(vault).balance, 5 ether);
+
+    // L'attaquant ne doit rien recevoir
+    assertEq(address(attacker).balance, 0);
+
+    // Son solde doit rester a zero
+    assertEq(vault.balances(address(attacker)), 0);
     }
 }

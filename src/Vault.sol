@@ -15,18 +15,17 @@ contract Vault {
         balances[msg.sender] += msg.value;
     }
 
-    // Permet de retirer ses ETH
+    // Permet de retirer ses ETH de manière sécurisée
     function withdraw() external {
+        // 1. CHECKS : vérifier le solde
         uint256 amount = balances[msg.sender];
-
         require(amount > 0, "Solde insuffisant");
 
-        // Envoi des ETH avant la mise a jour du solde
-        (bool success, ) = msg.sender.call{value: amount}("");
+       // 2. EFFECTS : mettre le solde a zero AVANT le transfert
+       balances[msg.sender] = 0;
 
-        require(success, "Echec du transfert");
-
-        // Mise a zero du solde
-        balances[msg.sender] = 0;
-    }
+      // 3. INTERACTIONS : envoyer les ETH
+     (bool success, ) = msg.sender.call{value: amount}("");
+     require(success, "Echec du transfert");
+     }
 }
